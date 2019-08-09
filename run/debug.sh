@@ -3,49 +3,86 @@
 function stack_trace() {
   local frame=0
   while caller $frame; do
-  ((frame++));
+    ((frame++))
   done
-  echo "$*"
+}
+
+###############################################################################
+# Exit before stack trace
+#
+# Globals:
+#   None
+# Arguments:
+#   msg:    message to print
+# Returns:
+#   None
+###############################################################################
+
+function error_exit() {
+  local msg=$1
+  printf "Exit. Error Msg: %s\n" "$msg"
+  stack_trace
   exit 1
 }
 
+###############################################################################
+# Write Error Log
+#
+# Globals:
+#   None
+# Arguments:
+#   msg:    message to print
+# Returns:
+#   None
+###############################################################################
+
 function error_log {
-  write_log $@
+  if [[ $# -ne 1 ]]; then
+    error_exit "Invalid arguments."
+  fi
+
+  local msg="$1"
+  printf "%s:%s: %s\n" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "$msg"
 }
 
-#######################################
+
+###############################################################################
 # Write Log 
 #
 # Globals:
 #   None
 # Arguments:
-#   source: source filename, better use ${BASH_SOURCE[0]}
-#   lineno: source line number, better use ${BASH_LINENO[0]}
 #   msg:    message to print
 # Returns:
 #   None
-#######################################
+###############################################################################
 
 function write_log {
   if [[ $# -ne 1 ]]; then
-    printf "%s:%s: %s\n" "${BASH_SOURCE[0]}" "${BASH_LINENO[0]}" "Not enough arguments."
-    stack_trace
-    exit 1
+    error_exit "Invalid arguments."
   fi
 
   local msg="$1"
-  printf "%s\n" "${msg}"
-
-  stack_trace
+  printf "%s:%s: %s\n" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "$msg"
 }
+
+###############################################################################
+# Write log with time
+#
+# Globals:
+#   None
+# Arguments:
+#   msg:    message to print
+# Returns:
+#   None
+###############################################################################
 
 function write_log_with_time {
-  local lineno=$1
-  local msg=$2
+  if [[ $# -ne 1 ]]; then
+    error_exit "Invalid arguments."
+  fi
+
+  local msg="$1"
   local date_time=$(date "+%F %T")
-  echo "$date_time $(basename "$0"):$lineno: $msg"
+  printf "%s %s:%s: %s\n" "$date_time" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "$msg"
 }
-
-
-# TODO: Remove
-# write_log $LINENO "Blah Blah Blah" # $LINENO 就是 Bash scritp 該行的行
