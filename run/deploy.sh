@@ -30,19 +30,23 @@ function clear_files() {
   fi
 
   if [[ -e "$dir_to_clear/.vimrc" ]]; then 
-    rm "$dir_to_clear/.vimrc"
+    rm -f "$dir_to_clear/.vimrc"
   fi
 
   if [[ -e "$dir_to_clear/.tmux.conf" ]]; then 
-    rm "$dir_to_clear/.tmux.conf"
+    rm -f "$dir_to_clear/.tmux.conf"
   fi
 
   if [[ -e "$dir_to_clear/.bash_config" ]]; then 
-    rm "$dir_to_clear/.bash_config"
+    rm -f "$dir_to_clear/.bash_config"
   fi
 
   if [[ -e "$dir_to_clear/.gitconfig" ]]; then
-    rm "$dir_to_clear/.gitconfig"
+    rm -f "$dir_to_clear/.gitconfig"
+  fi
+
+  if [[ -e "$dir_to_clear/.ssh/config" ]]; then
+    rm -f "$dir_to_clear/.ssh/config"
   fi
 }
 
@@ -96,6 +100,11 @@ function packup_files() {
   if [[ -e "$packup_src_dir/.gitconfig" ]]; then
     rsync "$packup_src_dir/.gitconfig" $packup_dst_dotfile_dir
   fi
+
+  if [[ -e "$packup_src_dir/.ssh/config" ]]; then
+    mkdir -p "$packup_dst_dotfile_dir/.ssh"
+    rsync "$packup_src_dir/.ssh/config" "$packup_dst_dotfile_dir/.ssh/"
+  fi
 }
 
 #######################################
@@ -139,11 +148,9 @@ function deploy_files() {
   # Git related
   rsync "$dotfile_path/.gitconfig" "$deploy_dst_dir"
 
-  # TODO: Remove
-  echo "$deploy_src_dir"
-  echo "$deploy_dst_dir"
-  echo "$dotfile_path"
-  echo "$utils_path"
+  # SSH related
+  mkdir -p "$deploy_dst_dir/.ssh/"
+  rsync "$dotfile_path/.ssh/config" "$deploy_dst_dir/.ssh/"
 }
 
 # tmux-config

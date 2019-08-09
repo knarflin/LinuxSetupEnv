@@ -1,3 +1,5 @@
+Pack up dot-files on one machine and deploy to another.
+
 DONE:
 - dotfiles packup
     - .vimrc

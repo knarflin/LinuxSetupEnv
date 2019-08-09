@@ -2,7 +2,18 @@
 #
 # packup
 # deploy
-# purge
+# clear
+#
+# tmux-config
+# vimrc + plugins
+# bashrc
+# gitconfig
+# ssh config
+# util-scripts & binary
+#
+# OS packages
+# python packages
+#
 
 function print_usage() {
   script_name="$(basename $0)"
@@ -18,7 +29,7 @@ function print_usage() {
 function install_packages() {
   local support_yum=false
   local support_apt=false
-  local suporrt_dnf=false
+  local support_dnf=false
 
   if [[ -x $(command -v yum) ]]; then
     support_yum=true
@@ -44,18 +55,6 @@ function install_packages() {
     echo "Run Dnf Install"
   fi
 }
-
-#
-# tmux-config
-# vimrc + plugins
-# bashrc
-# gitconfig
-# ssh config
-# util-scripts & binary
-#
-# OS packages
-# python packages
-#
 
 function main() {
   if [[ $# -lt 1 ]]; then
@@ -118,17 +117,18 @@ function main() {
   esac
 }
 
+# Script Preparation and Starts
+
 ROOT_PATH="$(dirname "$( readlink -f "${BASH_SOURCE[0]}" )")"
 echo ROOT_PATH = $ROOT_PATH
 
 #
 # Source debug-related functions so all scripts can use it.
-# Is this a good hiararchy?
 #
 source $ROOT_PATH/run/debug.sh
 
 #
-#
+# Source deploy-related functions
 #
 source $ROOT_PATH/run/deploy.sh
 
