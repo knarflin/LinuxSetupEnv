@@ -31,7 +31,7 @@ function clear_files() {
   local dir_to_clear="$1"
 
   if [[ -e $dir_to_clear/.bash_config ]]; then
-    grep -v "^source \.bash_config$" $dir_to_clear/.bashrc \
+    grep -v "^source \$HOME/\.bash_config$" $dir_to_clear/.bashrc \
       > $dir_to_clear/.bashrc.tmp
     mv -f $dir_to_clear/.bashrc.tmp $dir_to_clear/.bashrc
   fi
@@ -156,7 +156,7 @@ function deploy_files() {
   # Bash related
   rsync "$dotfile_path/.bash_config" "$deploy_dst_dir"
 
-  custom_bashrc_content="source .bash_config"
+  custom_bashrc_content="source \$HOME/.bash_config"
   grep -q "^${custom_bashrc_content}$" "$deploy_dst_dir/.bashrc" ||\
     echo "$custom_bashrc_content" >> "$deploy_dst_dir/.bashrc"
 
