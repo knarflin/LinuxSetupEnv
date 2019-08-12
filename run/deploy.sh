@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
-#######################################
+# tmux-config
+# vimrc + .vim (plugins)
+# bashrc
+# gitconfig
+# ssh config
+# util-scripts & binary
+
+# TODO: Restore: Bash modification
+# Switch Bash to Zsh
+
+###############################################################################
 # Cleanup files from the backup dir
 # Globals:
 #   None
@@ -8,7 +18,7 @@
 #   dir_to_clear: Usually $HOME
 # Returns:
 #   None
-#######################################
+###############################################################################
 
 function clear_files() {
 
@@ -21,7 +31,8 @@ function clear_files() {
   local dir_to_clear="$1"
 
   if [[ -e $dir_to_clear/.bash_config ]]; then
-    grep -v "^source \.bash_config$" $dir_to_clear/.bashrc > $dir_to_clear/.bashrc.tmp
+    grep -v "^source \.bash_config$" $dir_to_clear/.bashrc \
+      > $dir_to_clear/.bashrc.tmp
     mv -f $dir_to_clear/.bashrc.tmp $dir_to_clear/.bashrc
   fi
 
@@ -46,12 +57,26 @@ function clear_files() {
   fi
 
   if [[ -e "$dir_to_clear/.ssh/config" ]]; then
+    ssh_identities=($(cat $dir_to_clear/.ssh/config | grep IdentityFile |\
+      sed 's/\t/ /g' | tr -s ' ' | sed 's/^ //g' | cut -d' ' -f2))
+
+    for ssh_identity in ${ssh_identities[@]}; do
+      ssh_identity_realpath=$(eval realpath ${ssh_identity})
+      ssh_identity_dirname=$(dirname ${ssh_identity_realpath})
+
+      if [[ ${ssh_identity_dirname} -ef $HOME/.ssh/ ]]; then
+        ssh_identity_basename=$(basename ${ssh_identity_realpath})
+        rm -f $dir_to_clear/.ssh/${ssh_identity_basename}
+        rm -f $dir_to_clear/.ssh/${ssh_identity_basename}.pub
+      fi
+    done
+
     rm -f "$dir_to_clear/.ssh/config"
   fi
 }
 
 
-#######################################
+###############################################################################
 # Packup Files to Archive
 # Globals:
 #   None
@@ -60,7 +85,7 @@ function clear_files() {
 #   packup_dst_dir: Usually $HOME
 # Returns:
 #   None
-#######################################
+###############################################################################
 
 function packup_files() {
 
@@ -107,7 +132,7 @@ function packup_files() {
   fi
 }
 
-#######################################
+###############################################################################
 # Deploy Files to Home
 # Globals:
 #   None
@@ -116,7 +141,7 @@ function packup_files() {
 #   deploy_dst_dir: Temp dir storing the contents to be compressed.
 # Returns:
 #   None
-#######################################
+###############################################################################
 
 function deploy_files() {
 
@@ -135,7 +160,7 @@ function deploy_files() {
   rsync "$dotfile_path/.bash_config" "$deploy_dst_dir"
 
   custom_bashrc_content="source .bash_config"
-  grep -q "^${custom_bashrc_content}$" "$deploy_dst_dir/.bashrc" || \
+  grep -q "^${custom_bashrc_content}$" "$deploy_dst_dir/.bashrc" ||\
     echo "$custom_bashrc_content" >> "$deploy_dst_dir/.bashrc"
 
   # Vim related
@@ -151,14 +176,16 @@ function deploy_files() {
   # SSH related
   mkdir -p "$deploy_dst_dir/.ssh/"
   rsync "$dotfile_path/.ssh/config" "$deploy_dst_dir/.ssh/"
+
+  ssh_identities=($(cat $dotfile_path/.ssh/config | grep IdentityFile |\
+    sed 's/\t/ /g' | tr -s ' ' | sed 's/^ //g' | cut -d' ' -f2))
+
+  for ssh_identity in ${ssh_identities[@]}; do
+    ssh_identity_realpath=$(eval realpath ${ssh_identity})
+    ssh_identity_dirname=$(dirname ${ssh_identity_realpath})
+    if [[ ${ssh_identity_dirname} -ef $HOME/.ssh/ ]]; then
+      ssh_identity_basename=$(basename ${ssh_identity_realpath})
+      ssh-keygen -b 2048 -t rsa -f $deploy_dst_dir/.ssh/$ssh_identity_basename -q -N ""
+    fi
+  done
 }
-
-# tmux-config
-# vimrc + .vim (plugins)
-# bashrc
-# gitconfig
-# ssh config
-# util-scripts & binary
-
-# TODO: Restore: Bash modification
-# Switch Bash to Zsh

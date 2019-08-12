@@ -21,9 +21,9 @@ function print_usage() {
   echo ""
   echo "  $script_name [option]"
   echo ""
-  echo " -p [packup.tar]: Packup files"
-  echo " -d [deploy.tar]: Deploy files"
-  echo " -c             : Clean files"
+  echo " -p [packup.tar]              : Packup files"
+  echo " -d [deploy.tar] [deploy_path]: Deploy files to deploy_path"
+  echo " -c [clear_path]              : Clear files in clear_path"
 }
 
 function install_packages() {
@@ -86,19 +86,28 @@ function main() {
       rm -rf "$packup_dst_dir"
       ;;
     -d)
-      if [[ $# -ne 2 ]]; then
+      if [[ $# -ne 3 ]]; then
         print_usage
         exit 1
       fi
 
       echo deploy_files
-      local deploy_archive=$2
+      local deploy_archive="$2"
+      if [[ ! -e $deploy_archive ]]; then
+        error_log "File \'$deploy_archive\' does not exist."
+        exit 1
+      fi
 
       tar -xf $deploy_archive -C "$ROOT_PATH"
 
       local deploy_archive_basename=$(basename $deploy_archive)
       local deploy_src_dir="$ROOT_PATH/${deploy_archive_basename}.tmp"
-      local deploy_dst_dir="$HOME"
+      local deploy_dst_dir="$3"
+      if [[ ! -d $deploy_dst_dir ]]; then
+        error_log "Directory \'$deploy_dst_dir\' does not exist."
+        exit 1
+      fi
+
       deploy_files $deploy_src_dir $deploy_dst_dir
       rm -rf "$packup_src_dir"
       ;;
@@ -107,7 +116,16 @@ function main() {
       install_packages
       ;;
     -c)
-      local dir_to_clear="$HOME"
+      if [[ $# -ne 2 ]]; then
+        print_usage
+        exit 1
+      fi
+
+      local dir_to_clear="$2"
+      if [[ ! -d $dir_to_clear ]]; then
+        error_log "Directory \'$deploy_dst_dir\' does not exist."
+        exit 1
+      fi
       clear_files $dir_to_clear
       ;;
     *)
