@@ -8,6 +8,7 @@ DONE:
     - .bash_config
     - .tmux.conf
     - .gitconfig
+    - .ssh/config & .ssh/ Keys
 
 TODO:
 - user-specific scripts utils

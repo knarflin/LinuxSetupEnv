@@ -84,6 +84,8 @@ function main() {
       tar -C $(dirname "$packup_dst_dir") -cf "$packup_archive" \
         "$(basename $packup_dst_dir)"
       rm -rf "$packup_dst_dir"
+
+      echo Packup Done.
       ;;
     -d)
       if [[ $# -ne 3 ]]; then
@@ -91,7 +93,6 @@ function main() {
         exit 1
       fi
 
-      echo deploy_files
       local deploy_archive="$2"
       if [[ ! -e $deploy_archive ]]; then
         error_log "File \'$deploy_archive\' does not exist."
@@ -109,7 +110,9 @@ function main() {
       fi
 
       deploy_files $deploy_src_dir $deploy_dst_dir
-      rm -rf "$packup_src_dir"
+      rm -rf "$deploy_src_dir"
+
+      echo Deploy Done.
       ;;
     -i)
       # Call install_packages
@@ -127,6 +130,8 @@ function main() {
         exit 1
       fi
       clear_files $dir_to_clear
+
+      echo Clean Done.
       ;;
     *)
       print_usage
@@ -138,7 +143,6 @@ function main() {
 # Script Preparation and Starts
 
 ROOT_PATH="$(dirname "$( readlink -f "${BASH_SOURCE[0]}" )")"
-echo ROOT_PATH = $ROOT_PATH
 
 #
 # Source debug-related functions so all scripts can use it.

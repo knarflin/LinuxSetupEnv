@@ -98,9 +98,6 @@ function packup_files() {
   local packup_src_dir="$1"
   local packup_dst_dir="$2"
 
-  echo packup_src_dir = "$packup_src_dir"
-  echo packup_dst_dir = "$packup_dst_dir"
-
   local packup_dst_dotfile_dir="$packup_dst_dir/dotfile"
   mkdir -p $packup_dst_dotfile_dir
 
