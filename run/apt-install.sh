@@ -1,15 +1,22 @@
+#!/usr/bin/env bash
 
-apt-get install vim
-apt-get install tmux
+apt install vim
+apt install tmux
+
+apt install cscope
+apt install ctags
 
 # Network Tools
-apt-get install dnsutils
-apt-get install nslookup
-apt-get install nmap
+apt install dnsutils
 
-apt-get install htop
-apt-get install git
-apt-get install tcpdump
+# nslookup (Shipped with Ubuntu)
+apt install nmap
 
-apt-get install clang-format
-apt-get install build-essential
+apt install htop
+apt install git
+apt install tcpdump
+
+apt install clang-format
+apt install build-essential
+
+apt install python3-pip
