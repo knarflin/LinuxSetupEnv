@@ -13,7 +13,6 @@
 #
 # OS packages
 # python packages
-#
 
 function print_usage() {
   script_name="$(basename $0)"
@@ -140,8 +139,9 @@ function main() {
   esac
 }
 
+#
 # Script Preparation and Starts
-
+#
 ROOT_PATH="$(dirname "$( readlink -f "${BASH_SOURCE[0]}" )")"
 
 #

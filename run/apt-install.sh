@@ -18,5 +18,18 @@ apt install tcpdump
 
 apt install clang-format
 apt install build-essential
+apt install cmake
 
 apt install python3-pip
+apt install tree
+
+apt install pandoc # Documentation Tool with Markdown.
+
+# Latex
+
+apt install texlive-latex-base
+apt install latex-cjk-all # Chinese
+apt install texlive-latex-extra
+# apt install texmaker # editor, viewer, compiler
+# apt install texlive-xetex # xelatex
+# apt install texlive-publishers
