@@ -20,6 +20,7 @@ source $ROOT_PATH/run/handlers/tmux_handler.sh
 source $ROOT_PATH/run/handlers/git_handler.sh
 source $ROOT_PATH/run/handlers/vim_handler.sh
 source $ROOT_PATH/run/handlers/ssh_handler.sh
+source $ROOT_PATH/run/handlers/zsh_handler.sh
 
 ###############################################################################
 # Cleanup files from the backup dir
@@ -46,6 +47,7 @@ function clear_files() {
   clear_tmux $dir_to_clear
   clear_git $dir_to_clear
   clear_ssh $dir_to_clear
+  clear_zsh $dir_to_clear
 }
 
 
@@ -79,6 +81,7 @@ function packup_files() {
   packup_bash $packup_src_dir $packup_dst_dotfile_dir
   packup_git $packup_src_dir $packup_dst_dotfile_dir
   packup_ssh $packup_src_dir $packup_dst_dotfile_dir
+  packup_zsh $packup_src_dir $packup_dst_dotfile_dir
 }
 
 ###############################################################################
@@ -110,4 +113,5 @@ function deploy_files() {
   deploy_tmux $dotfile_path $deploy_dst_dir
   deploy_git $dotfile_path $deploy_dst_dir
   deploy_ssh $dotfile_path $deploy_dst_dir
+  deploy_zsh $dotfile_path $deploy_dst_dir
 }
