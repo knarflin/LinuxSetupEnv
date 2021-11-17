@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+
+clean_intermediate() {
+  rm -f cscope.files
+}
+
+clean() {
+  rm -f cscope.po.out
+  rm -f cscope.in.out
+  rm -f cscope.out
+  rm -f tags
+}
+
+get_abs_src_dirs() {
+  local src_dirs_file=$1
+
+  # Read path entries from file
+  IFS=$'\r\n' rel_src_dirs=($(cat $src_dirs_file))
+
+  # Make paths absolute
+  local abs_src_dirs=()
+  for path in ${rel_src_dirs[@]}
+  do
+    abs_src_dirs=(${abs_src_dirs[*]} $(realpath $path))
+  done
+
+  RETVAL=$abs_src_dirs
+}
+
+cross_ref_python() {
+
+  local abs_src_dirs=$1
+  mkdir -p .xref
+  # ctags
+  find ${abs_src_dirs[*]} | ctags  -f .xref/tags --exclude=.git -L -
+
+  # cscope
+  find ${abs_src_dirs[*]} -name "*.py" > .xref/cscope.files
+  cscope -Rbq -i .xref/cscope.files
+  mv cscope.*out .xref/ # cscope.in.out cscope.out cscope.po.out"
+}
+
+cross_ref_c() {
+  local abs_src_dirs=$1
+
+  mkdir -p .xref
+  echo $abs_src_dirs
+  # ctags
+  find ${abs_src_dirs[*]} | ctags  -f .xref/tags --exclude=.git -L -
+
+  # cscope
+  find ${abs_src_dirs[*]} -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" > .xref/cscope.files
+  cscope -Rbq -i .xref/cscope.files
+  mv cscope.*out .xref/ # cscope.in.out cscope.out cscope.po.out"
+}
+
+print_usage() {
+  echo "Usage:"
+  echo ""
+  echo " $(basename $0) -s [src_dirs_file] -l [language]"
+  echo ""
+  echo "Options:"
+  echo ""
+  echo " -s [src_dirs_file] : You need to create a file containing all source dirs"
+  echo " -l [language]    : c, cpp, python"
+}
+
+xref_lang() {
+  local lang=$1
+  local abs_src_dirs=$2
+  local retval=
+
+  case $lang in
+    python)
+      cross_ref_python $abs_src_dirs
+      retval=$?
+      ;;
+    c)
+      cross_ref_c $abs_src_dirs
+      retval=$?
+      ;;
+    cpp)
+      cross_ref_c $abs_src_dirs
+      retval=$?
+      ;;
+    *)
+      echo "$lang not supported."
+      print_usage
+      retval=2
+  esac
+  return $retval
+}
+
+main() {
+	# getopts
+
+  local lang=
+  local src_dirs_file=
+
+	while getopts "h?s:l:" opt; do
+			case "$opt" in
+			h|\?)
+					print_usage
+					exit 0
+					;;
+			s)  # file of lib source dir list
+          src_dirs_file=$OPTARG
+					;;
+			l)  # language
+          lang=$OPTARG
+					;;
+			esac
+	done
+
+  if [ -z "$lang" ]; then
+    print_usage
+    exit 1
+  fi
+
+  if [ -z "$src_dirs_file" ]; then
+    echo "Warning: no 3-rd library src"
+  fi
+
+  # Get absolute paths of dirs in given file
+  get_abs_src_dirs $src_dirs_file
+  abs_src_dirs=${RETVAL}
+
+  # Add current path
+  abs_src_dirs=(${abs_src_dirs[*]} $PWD)
+  echo ${abs_src_dirs[*]}
+
+  xref_lang $lang $abs_src_dirs
+  exit "$?"
+}
+
+main $*
